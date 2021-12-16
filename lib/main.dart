@@ -2,36 +2,68 @@
 
 // import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:google_fonts/google_fonts.dart';
+// import 'package:flutter/widgets.dart';
 // import 'package:google_fonts/google_fonts.dart';
 
 void main() => runApp(
       MaterialApp(
-        home: Scaffold(
-          body: ListaTransferencias(),
-        ),
+        themeMode: ThemeMode.dark,
+        home: ListaTransferencias(),
       ),
     );
 
 // ------- Classes de refarotação --------
-class ListaTransferencias extends StatelessWidget {
+class ListaTransferencias extends StatefulWidget {
+  final List<Transferencia> _transferencias = [];
+
+  @override
+  State<StatefulWidget> createState() {
+    return ListaTransferenciaState();
+  }
+}
+
+class ListaTransferenciaState extends State<ListaTransferencias> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bem vindo'),
+        centerTitle: true,
+        // alteração teste na animação
+        title: Text(
+          'Transferencias',
+          style: GoogleFonts.aBeeZee(),
+        ),
       ),
-      body: Column(
-        children: [
-          ItemTransferencia(Transferencia(100.00, 4500097)),
-        ],
+      body: ListView.builder(
+        itemCount: widget._transferencias.length,
+        itemBuilder: (context, indice) {
+          final transferencia = widget._transferencias[indice];
+          return ItemTransferencia(transferencia);
+        },
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add_sharp),
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
+          final Future future =
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
             return FormularioTransferencia();
           }));
+          // ignore: non_constant_identifier_names
+          future.then((transferenciaRecebida) {
+            Future.delayed(
+                Duration(
+                  seconds: 1,
+                ), () {
+              debugPrint('chegou no then do future');
+              debugPrint('$transferenciaRecebida');
+              if (transferenciaRecebida != null) {
+                setState(() {
+                  widget._transferencias.add(transferenciaRecebida);
+                });
+              }
+            });
+          });
         },
       ),
     );
@@ -73,31 +105,38 @@ class _FormularioTransferenciaState extends State<FormularioTransferencia> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Criando uma transferência'),
+        title: Text(
+          'Criando uma transferência',
+          style: GoogleFonts.aBeeZee(),
+        ),
       ),
-      body: Column(
-        children: <Widget>[
-          // field de numero da conta
-          Editor(
-            controlador: _controladorCampoNumeroconta,
-            dica: '0000',
-            rotulo: 'Número da conta',
-          ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            // field de numero da conta
+            Editor(
+              controlador: _controladorCampoNumeroconta,
+              dica: '0000',
+              rotulo: 'Número da conta',
+            ),
 
-          Editor(
-            controlador: _controladorCampoValor,
-            dica: '0.00',
-            rotulo: 'Valor',
-            icone: Icons.monetization_on,
-          ),
-
-          // botao de confirmar transação
-          ElevatedButton(
-            child: Text('Confirmar'),
-            onPressed: () => _criaTransferencia(
-                _controladorCampoNumeroconta, _controladorCampoValor, context),
-          ),
-        ],
+            Editor(
+              controlador: _controladorCampoValor,
+              dica: '0.00',
+              rotulo: 'Valor',
+              icone: Icons.monetization_on,
+            ),
+            // botao de confirmar transação
+            ElevatedButton(
+              child: Text('Confirmar'),
+              onPressed: () => _criaTransferencia(
+                _controladorCampoNumeroconta,
+                _controladorCampoValor,
+                context,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -109,19 +148,23 @@ class _FormularioTransferenciaState extends State<FormularioTransferencia> {
 
     if (numeroConta != null && valor != null) {
       final transferenciaCriada = Transferencia(valor, numeroConta);
+      debugPrint('criando transferencia');
+      debugPrint('$transferenciaCriada');
+      Navigator.pop(context, transferenciaCriada);
 
+      // Snack bar para avisar q deu certo indicando verde em uma linha na tela
       // ignore: deprecated_member_use
-      Scaffold.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.check_circle),
-              Text('$transferenciaCriada'),
-            ],
-          ),
-          backgroundColor: Colors.green,
-        ),
-      );
+      // Scaffold.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Row(
+      //       children: [
+      //         Icon(Icons.check_circle),
+      //         Text('$transferenciaCriada'),
+      //       ],
+      //     ),
+      //     backgroundColor: Colors.green,
+      //   ),
+      // );
     }
   }
 }
