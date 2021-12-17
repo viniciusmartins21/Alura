@@ -8,7 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 void main() => runApp(
       MaterialApp(
-        themeMode: ThemeMode.dark,
+        theme: ThemeData.fallback(),
         home: ListaTransferencias(),
       ),
     );
@@ -32,7 +32,7 @@ class ListaTransferenciaState extends State<ListaTransferencias> {
         // alteração teste na animação
         title: Text(
           'Transferencias',
-          style: GoogleFonts.aBeeZee(),
+          style: GoogleFonts.averiaSerifLibre(),
         ),
       ),
       body: ListView.builder(
@@ -126,6 +126,7 @@ class _FormularioTransferenciaState extends State<FormularioTransferencia> {
               rotulo: 'Valor',
               icone: Icons.monetization_on,
             ),
+
             // botao de confirmar transação
             ElevatedButton(
               child: Text('Confirmar'),
